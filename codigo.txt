@@ -1,0 +1,114 @@
+    //Obtener el número de mesa
+    var tNumber;
+    tableNumber <= 9 ? (tNumber = `T0${tableNumber}`) : `T${tableNumber}`;
+
+    //Obtener el resumen del pedido de la base de datos
+    var orderSummary = await this.getOrderSummary(tNumber);
+----------------------------------------------------------------------------------------
+    //Cambiar la visibilidad del div modal
+    var modalDiv = document.getElementById("modal-div");
+    modalDiv.style.display = "flex";
+
+    //Obtener el elemento de la mesa
+    var tableBodyTag = document.getElementById("bill-table-body");
+	
+    //Eliminar datos antiguos de tr(fila de la tabla)
+    tableBodyTag.innerHTML = "";
+----------------------------------------------------------------------------------
+        //Obtener la clave de current_orders
+        var currentOrders = Object.keys(orderSummary.current_orders);
+
+        currentOrders.map(i => {
+    
+          //Crear la fila de la mesa
+          var tr = document.createElement("tr");
+    
+          //Crear celdas/columnas para NOMBRE DEL ARTÍCULO, PRECIO, CANTIDAD y PRECIO TOTAL
+          var item = document.createElement("td");
+          var price = document.createElement("td");
+          var quantity = document.createElement("td");
+          var subtotal = document.createElement("td");
+    
+          //Añadir contenido HTML 
+          item.innerHTML = orderSummary.current_orders[i].item;
+    
+          price.innerHTML = "$" + orderSummary.current_orders[i].price;
+          price.setAttribute("class", "text-center");
+    
+          quantity.innerHTML = orderSummary.current_orders[i].quantity;
+          quantity.setAttribute("class", "text-center");
+    
+          subtotal.innerHTML = "$" + orderSummary.current_orders[i].subtotal;
+          subtotal.setAttribute("class", "text-center");
+    
+          //Añadir celdas a la fila
+          tr.appendChild(item);
+          tr.appendChild(price);
+          tr.appendChild(quantity);
+          tr.appendChild(subtotal);
+    
+          //Añadir la fila a la tabla
+          tableBodyTag.appendChild(tr);
+        });
+--------------------------------------------------------------------------------------------
+      //Crear una fila para el precio total
+      var totalTr = document.createElement("tr");
+
+      //Crear una celda vacía (para no tener datos)
+      var td1 = document.createElement("td");
+      td1.setAttribute("class", "no-line");
+  
+      //Crear una celda vacía (para no tener datos))
+      var td2 = document.createElement("td");
+      td1.setAttribute("class", "no-line");
+  
+      //Crear una celda para el TOTAL
+      var td3 = document.createElement("td");
+      td1.setAttribute("class", "no-line text-center");
+  
+      //Crear un elemento <strong> para enfatizar el texto
+      var strongTag = document.createElement("strong");
+      strongTag.innerHTML = "Total";
+  
+      td3.appendChild(strongTag);
+  
+      //Crear una celda para mostrar el importe total de la factura
+      var td4 = document.createElement("td");
+      td1.setAttribute("class", "no-line text-right");
+      td4.innerHTML = "$" + orderSummary.total_bill;
+  
+      //Añadir celdas a la fila
+      totalTr.appendChild(td1);
+      totalTr.appendChild(td2);
+      totalTr.appendChild(td3);
+      totalTr.appendChild(td4);
+  
+      //Añadir la fila a la tabla
+      tableBodyTag.appendChild(totalTr);
+-----------------------------------------------------------------------------------------------
+        // Cerrar el modal
+        document.getElementById("modal-div").style.display = "none";
+
+        // Obtener el número de la tabla
+        var tNumber;
+        tableNumber <= 9 ? (tNumber = `T0${tableNumber}`) : `T${tableNumber}`;
+    
+        //Restablecer los pedidos actuales y la cuenta total
+        firebase
+          .firestore()
+          .collection("tables")
+          .doc(tNumber)
+          .update({
+            current_orders: {},
+            total_bill: 0
+          })
+          .then(() => {
+            swal({
+              icon: "success",
+              title: "¡Gracias por su compra!",
+              text: "¡¡Esperamos que haya disfrutado de su comida!!",
+              timer: 2500,
+              buttons: false
+            });
+          });
+------------------------------------------------------------------------------------------
